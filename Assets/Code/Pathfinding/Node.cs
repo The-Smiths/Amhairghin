@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Node
+public class Node : IGenericHeapItem<Node>
 {
     public bool obstruction;
     public Vector3 position;
@@ -23,4 +23,22 @@ public class Node
         x = _x;
         y = _y;
     }
+
+    #region IGenericHeapItem
+
+    public int index { get; set; }
+
+    public int CompareTo(Node other)
+    {
+        int result = fCost.CompareTo(other.fCost);
+
+        if (result == 0)
+        {
+            result = hCost.CompareTo(other.hCost);
+        }
+
+        return -result;
+    }
+
+    #endregion
 }

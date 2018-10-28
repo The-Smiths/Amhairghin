@@ -4,51 +4,49 @@ using UnityEngine;
 
 public class Pathfinder : MonoBehaviour
 {
-    public GridMap grid;
-
-    private List<Node> _gridPath; // FIXME: added for testing purposes
+    [SerializeField] private GridMap _grid;
 
     private void Start()
     {
-        grid.CreateGrid();
+        _grid.CreateGrid();
     }
 
+    /*
+    // draws the _grid of nodes
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(grid.gridCenter, new Vector3(grid.gridSize.x, grid.gridSize.y, 1));
+        Gizmos.DrawWireCube(_grid.gridCenter, new Vector3(_grid.gridSize.x, _grid.gridSize.y, 1));
 
-        if (grid.grid != null)
+        if (_grid.grid != null)
         {
-            foreach (Node node in grid.grid)
+            foreach (Node node in _grid.grid)
             {
                 Gizmos.color = node.obstruction ? Color.red : Color.blue;
-
-                if (_gridPath != null && _gridPath.Contains(node))
-                {
-                    Gizmos.color = Color.black;
-                }
-
-                Gizmos.DrawCube(node.position, Vector3.one * (grid.nodeRadius * 2 - 0.1f)); //FIXME: doesn't work if grid.nodeRadius is 0.05 or below (sums to 0 or below)
+                Gizmos.DrawCube(node.position, Vector3.one * (_grid.nodeRadius * 2 - 0.1f)); //FIXME: doesn't work if _grid.nodeRadius is 0.05 or below (sums to 0 or below)
             }
         }
     }
+    */
 
     // uses the A* pathfinding algorithm
-    public void Pathfind(PathfindingAgentSettings settings, Vector3 startPos, Vector3 endPos)
+    public List<Node> Pathfind(PathfindingAgentSettings settings, Vector3 startPos, Vector3 endPos)
     {
-        Node start = grid.WorldPositionToNode(startPos);
-        Node end = grid.WorldPositionToNode(endPos);
+        Node start = _grid.WorldPositionToNode(startPos);
+        Node end = _grid.WorldPositionToNode(endPos);
 
-        _gridPath = CreateTrace(settings, start, end);
+        if (!settings.CanTraverse(end)) // if you can't traverse the end node, just give up
+            return null;    // TODO: possibly more elegant system?
+
+        return CreateTrace(settings, start, end);
     }
 
     private List<Node> CreateTrace(PathfindingAgentSettings settings, Node start, Node end)
     {
-        List<Node> openNodes = new List<Node>();
+        GenericHeap<Node> openNodes = new GenericHeap<Node>(_grid.maxSize);
         HashSet<Node> closedNodes = new HashSet<Node>();
 
-        openNodes.Add(start);
-        Node currentNode = openNodes[0];
+        openNodes.Add(start, settings.intelligent);
+        Node currentNode = null;
 
         int iterations = 0; //FIXME: remove this, it's just to stop infite while loops in development
 
@@ -56,36 +54,31 @@ public class Pathfinder : MonoBehaviour
         {
             iterations++; 
 
-            currentNode = openNodes[0];
-            for (int i = 0; i < openNodes.Count; i++)
-            {
-                if (openNodes[i].fCost <= currentNode.fCost && openNodes[i].hCost < currentNode.hCost)
-                {
-                    currentNode = openNodes[i];
-				}
-            }
-
-            openNodes.Remove(currentNode);
+            currentNode = openNodes.RemoveFirst();
             closedNodes.Add(currentNode);
 
             if (currentNode == end)
                 break;
             
-            foreach (Node node in grid.GetNeighboringNodes(currentNode))
+            foreach (Node node in _grid.GetNeighboringNodes(currentNode))
             {
-                if (!node.obstruction && !closedNodes.Contains(node))
+                if (settings.CanTraverse(node) && !closedNodes.Contains(node))
                 {
-                    int newMoveCost = currentNode.gCost + grid.GetDistance(currentNode, node);
+                    int newMoveCost = currentNode.gCost + _grid.GetDistance(currentNode, node);
 
                     if (newMoveCost < node.gCost || !openNodes.Contains(node))
                     {
                         node.gCost = newMoveCost;
-                        node.hCost = grid.GetDistance(node, end);
+                        node.hCost = _grid.GetDistance(node, end);
                         node.parent = currentNode;
 
                         if (!openNodes.Contains(node))
                         {
-                            openNodes.Add(node);
+                            openNodes.Add(node, settings.intelligent);
+                        }
+                        else
+                        {
+                            openNodes.UpdateItem(node, settings.intelligent);
                         }
                     }
                 }

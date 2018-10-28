@@ -7,6 +7,7 @@ public class GridMap
 {
     [HideInInspector] public Node[,] grid; // [HideInInspector] attribute is unnecesary as Node isn't serializable, but I'll add it anyway
     [HideInInspector] public float nodeRadius { get { return 0.5f / nodesPerUnit; } } 
+    [HideInInspector] public int maxSize { get { return (int) (gridSize.x * gridSize.y); } }
 
     public Vector2 gridSize;
     public Vector3 gridCenter;

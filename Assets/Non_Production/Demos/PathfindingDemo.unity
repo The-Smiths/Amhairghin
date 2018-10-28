@@ -464,7 +464,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 13
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -520,7 +520,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e66bc963c436c640b530340c5981aa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grid:
+  _grid:
     gridSize: {x: 25, y: 25}
     gridCenter: {x: 0, y: 0, z: 0}
     obstructionMask:
@@ -669,8 +669,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathfindingSettings:
-    canMoveThroughObstacles: 1
-    canMoveThroughNonObstacles: 0
+    _obstaclesTraversable: 0
+    _nonObstaclesTraversable: 1
+    maxReuseStartDist: 0.5
+    maxReuseEndDist: 0.5
   _speed: 0
 --- !u!4 &1772495374
 Transform:

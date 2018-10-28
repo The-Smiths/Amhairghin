@@ -9,6 +9,5 @@ public class GotoMouse : PathfindingAgent
     private void Update()
     {
         Vector3 heading = GetPathHeading(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        transform.Translate(heading * _speed);
     }
 }
