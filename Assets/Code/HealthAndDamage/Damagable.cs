@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using System.Linq;
 
 public class Damagable : MonoBehaviour {
@@ -7,6 +8,10 @@ public class Damagable : MonoBehaviour {
     public float Health = 100;
     public float BaseResistance = 20;
     public List<string> Tags = new List<string>() { "default" };
+
+    [System.Serializable] private class UnityFloatEvent : UnityEvent<float> {};
+    [SerializeField] private UnityFloatEvent OnBeingAttacked = new UnityFloatEvent();
+    [SerializeField] private UnityEvent OnZeroHealth = new UnityEvent();
 
     public float ReceiveDamage( Damage dmg )
     {
@@ -25,19 +30,17 @@ public class Damagable : MonoBehaviour {
 
                 if (Health < 0)
                 {
-                    Kill();
+                    OnZeroHealth.Invoke();
                 }
             }
 
         }
-
-        OnAttacked(receivedDMG);
+        
+        OnBeingAttacked.Invoke( receivedDMG );
         return Health;
     }
 
-    virtual protected void OnAttacked( float damageReceived ) { } //May be usefull in derived classes
-
-    virtual protected void Kill() //probably will be overrided
+    public void Kill() //temp class just to see some effect
     {
         Destroy(gameObject);
     }
