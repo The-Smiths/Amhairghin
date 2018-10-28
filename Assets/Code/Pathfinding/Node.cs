@@ -4,29 +4,29 @@ using UnityEngine;
 
 public class Node : IGenericHeapItem<Node>
 {
-    public bool obstruction;
-    public Vector3 position;
+    public bool Obstruction;
+    public Vector3 Position;
 
-    public int x;
-    public int y;
+    public int X;
+    public int Y;
 
     public int gCost; // distance from start node
     public int hCost; // distance from end node
     public int fCost { get { return gCost + hCost; } }
 
-    public Node parent;
+    public Node Parent;
 
     public Node(bool _obstruction, Vector3 _position, int _x, int _y)
     {
-        obstruction = _obstruction;
-        position = _position;
-        x = _x;
-        y = _y;
+        Obstruction = _obstruction;
+        Position = _position;
+        X = _x;
+        Y = _y;
     }
 
     #region IGenericHeapItem
 
-    public int index { get; set; }
+    public int Index { get; set; }
 
     public int CompareTo(Node other)
     {

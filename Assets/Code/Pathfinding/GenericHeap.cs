@@ -17,7 +17,7 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
 
     public void Add(T item, bool intelligent)
     {
-        item.index = _itemCount;
+        item.Index = _itemCount;
         _items[_itemCount] = item;
 
         SortUp(item, intelligent);
@@ -30,7 +30,7 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
         _itemCount--;
 
         _items[0] = _items[_itemCount];
-        _items[0].index = 0;
+        _items[0].Index = 0;
 
         SortDown(_items[0]);
         return item;
@@ -43,12 +43,12 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
 
     public bool Contains(T item)
     {
-        return Equals(_items[item.index], item);
+        return Equals(_items[item.Index], item);
     }
 
     private void SortUp(T item, bool intelligent)
     {
-        int parentIndex = (item.index - 1) / 2;
+        int parentIndex = (item.Index - 1) / 2;
 
         while (true)
         {
@@ -65,7 +65,7 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
 
             if (intelligent)
             {
-                parentIndex = (item.index - 1) / 2;
+                parentIndex = (item.Index - 1) / 2;
             }
         }
     }
@@ -74,8 +74,8 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
     {
         while (true)
         {
-            int childA = item.index * 2 + 1;
-            int childB = item.index * 2 + 2;
+            int childA = item.Index * 2 + 1;
+            int childB = item.Index * 2 + 2;
             int swapIndex = 0;
 
             if (childA < _itemCount)
@@ -104,16 +104,16 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
 
     private void Swap(T a, T b)
     {
-        _items[a.index] = b;
-        _items[b.index] = a;
+        _items[a.Index] = b;
+        _items[b.Index] = a;
 
-        int temp = a.index;
-        a.index = b.index;
-        b.index = temp;
+        int temp = a.Index;
+        a.Index = b.Index;
+        b.Index = temp;
     }
 }
 
 public interface IGenericHeapItem<T> : IComparable<T>
 {
-   int index { get; set; }
+   int Index { get; set; }
 }
