@@ -1,54 +1,27 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GotoMouse : PathfindingAgent
 {
+    [Header("Goto Mouse")]
     [SerializeField] private float _speed;
-    [SerializeField] private float _reachDistance;
 
     protected override void Start()
     {
         InitializePathfindingAgent();
-
-        Request();
     }
 
-    protected override void OnPathRecieved(bool success)
+    private void Update()
     {
-        StopCoroutine(FollowPath());
+        RecalculatePath();
 
-        if (success && lastPath.Points != null)
-            StartCoroutine(FollowPath());
-
-        //Request();
+        if (lastPath.Successful && lastPath.Points != null && lastPath.Points.Length > 0)
+        { 
+            transform.position = Vector3.MoveTowards(transform.position, lastPath.Points[0], _speed * Time.deltaTime);
+        }
     }
 
-    private void Request()
+    private void RecalculatePath()
     {
         RequestPath(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition));
-    }
-
-    private IEnumerator FollowPath()
-    {
-        int target = 0;
-
-        while (true)
-        {
-            float distance = Vector3.Distance(transform.position, lastPath.Points[target]);
-            transform.position = Vector3.MoveTowards(transform.position, lastPath.Points[target], _speed * Time.deltaTime);
-
-            if (distance <= _reachDistance)
-            {
-                target++;
-
-                if (target >= lastPath.Points.Length)
-                {
-                    Request();
-                    yield break;
-                }
-            }
-
-            yield return null;
-        }
     }
 }

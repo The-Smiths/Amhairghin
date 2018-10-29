@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PathfindingAgent : MonoBehaviour
 {
@@ -14,6 +13,7 @@ public class PathfindingAgent : MonoBehaviour
         InitializePathfindingAgent();
     }
 
+    // draw the path
     protected void OnDrawGizmos()
     {
         if (!lastPath.Successful)
@@ -44,13 +44,6 @@ public class PathfindingAgent : MonoBehaviour
             return;
 
         awaitingPath = true;
-
-        if (CanReuseLastPath(start, end))
-        {
-            StartCoroutine(ReuseLastPath());
-            return;
-        }
-
         pathfinder.RequestPath(start, end, pathfindingSettings, RecievePath);
     }
 
@@ -62,21 +55,7 @@ public class PathfindingAgent : MonoBehaviour
         OnPathRecieved(response.Successful);
     }
 
-    protected bool CanReuseLastPath(Vector3 start, Vector3 end)
-    {
-        if (!lastPath.Successful)
-            return false;
-
-        return Vector3.Distance(start, lastPath.Start) < pathfindingSettings.MaxReuseStartDist && Vector3.Distance(end, lastPath.End) < pathfindingSettings.MaxReuseEndDist;
-    }
-
-    protected IEnumerator ReuseLastPath()
-    {
-        yield return null;
-        RecievePath(lastPath);
-    }
-
-    protected virtual void OnPathRecieved(bool success) {}
+    protected virtual void OnPathRecieved(bool success) { }
 }
 
 [System.Serializable]
@@ -84,11 +63,6 @@ public struct PathfindingAgentSettings
 {
     [SerializeField] private bool _obstaclesTraversable;
     [SerializeField] private bool _nonObstaclesTraversable;
-
-    [Space]
-
-    public float MaxReuseStartDist;
-    public float MaxReuseEndDist;
 
     [Space]
 

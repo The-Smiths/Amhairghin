@@ -12,8 +12,6 @@ public class Node : IGenericHeapItem<Node>
     public int hCost; // distance from end node
     public int fCost { get { return gCost + hCost; } }
 
-    //public Node Parent;
-
     public Node(bool _obstruction, Vector3 _position, int _x, int _y)
     {
         Obstruction = _obstruction;

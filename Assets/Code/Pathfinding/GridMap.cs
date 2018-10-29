@@ -6,17 +6,18 @@ public class GridMap
 {
     [HideInInspector] public Node[,] Grid; // [HideInInspector] atrribute is unnecessary on these, but I'll add it anyway
     [HideInInspector] public float NodeRadius { get { return 0.5f / _nodesPerUnit; } } 
-    [HideInInspector] public int MaxSize { get { return (int) (_gridSize.x * _gridSize.y); } }
+    [HideInInspector] public int MaxSize { get { return (int) (GridSize.x * GridSize.y); } }
 
-    [SerializeField] private Vector3 _gridCenter;
+    public Vector3 GridCenter;
+    public Vector2 GridSize;
+
     [SerializeField] private LayerMask _obstructionMask;
     [SerializeField] private int _nodesPerUnit;
-    [SerializeField] private Vector2 _gridSize;
     
     public void CreateGrid()
     {
-        Grid = new Node[(int) _gridSize.x * _nodesPerUnit, (int) _gridSize.y * _nodesPerUnit];
-        Vector3 bottomLeft = _gridCenter - (Vector3.right * _gridSize.x / 2) - (Vector3.up * _gridSize.y / 2);
+        Grid = new Node[(int) GridSize.x * _nodesPerUnit, (int) GridSize.y * _nodesPerUnit];
+        Vector3 bottomLeft = GridCenter - (Vector3.right * GridSize.x / 2) - (Vector3.up * GridSize.y / 2);
 
         for (int x = 0; x < Grid.GetLength(0); x++)
         {
@@ -32,11 +33,11 @@ public class GridMap
 
     public Node WorldPositionToNode(Vector3 position)
     {
-        float percentX = Mathf.Clamp01((position.x + _gridSize.x / 2) / _gridSize.x);
-        float percentY = Mathf.Clamp01((position.y + _gridSize.y / 2) / _gridSize.y);
+        float percentX = Mathf.Clamp01((position.x + GridSize.x / 2) / GridSize.x);
+        float percentY = Mathf.Clamp01((position.y + GridSize.y / 2) / GridSize.y);
 
-        int x = (int) Mathf.Round((_gridSize.x - 1) * percentX * _nodesPerUnit);
-        int y = (int) Mathf.Round((_gridSize.y - 1) * percentY * _nodesPerUnit);
+        int x = (int) Mathf.Round((GridSize.x - 1) * percentX * _nodesPerUnit);
+        int y = (int) Mathf.Round((GridSize.y - 1) * percentY * _nodesPerUnit);
 
         return Grid[x, y];
     }

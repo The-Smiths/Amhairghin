@@ -1,14 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class Pathfinder : MonoBehaviour
 {
     [SerializeField] private GridMap _grid;
 
-    [Space]
+    [Header("Pathfinding")]
+    [SerializeField] private int maxIterations;
 
+    [Header("Multithreading")]
     [SerializeField] private int maxJobs;
 
     private Queue<PathRequest> _requestQueue = new Queue<PathRequest>();
@@ -18,6 +20,16 @@ public class Pathfinder : MonoBehaviour
     {
         _grid.CreateGrid();
     }
+
+    #region Gizmos
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireCube(_grid.GridCenter, _grid.GridSize);
+    }
+
+    #endregion
 
     #region Requesting Paths
 
@@ -35,7 +47,9 @@ public class Pathfinder : MonoBehaviour
             return;
 
         _currentJobs++;
-        StartCoroutine(FindPath(_requestQueue.Dequeue()));
+
+        Thread thread = new Thread(() => FindPath(_requestQueue.Dequeue()));
+        thread.Start();
     }
 
     private void OnPathFound(PathRequest request, bool successful, Vector3[] points)
@@ -51,17 +65,17 @@ public class Pathfinder : MonoBehaviour
 
     #region Pathfinding
 
-    private IEnumerator FindPath(PathRequest request)
+    private void FindPath(PathRequest request)
     {
         PathfindingAgentSettings settings = request.Settings;
-
+        
         bool success = true;
         Vector3[] path = null;
 
         Node start = _grid.WorldPositionToNode(request.Start);
         Node end = _grid.WorldPositionToNode(request.End);
 
-        if (!settings.CanTraverse(start) || !settings.CanTraverse(end))
+        if (!settings.CanTraverse(end))
             success = false;
             
         GenericHeap<Node> openNodes = new GenericHeap<Node>(_grid.MaxSize);
@@ -74,7 +88,7 @@ public class Pathfinder : MonoBehaviour
 
         int iterations = 0;
 
-        while (openNodes.Count > 0 && success == true && iterations < 1000)
+        while (openNodes.Count > 0 && success == true && iterations < maxIterations)
         {
             iterations++;
 
@@ -110,14 +124,10 @@ public class Pathfinder : MonoBehaviour
             }
         }
 
-        yield return new WaitForEndOfFrame();
-
         if (success)
-        {
             path = RetracePath(start, currentNode, parentChild);
-        }
 
-        OnPathFound(request, success, path);
+        MainThreadDispatcher.Add(() => OnPathFound(request, success, path)); // execute on the main thread
     }
 
     private Vector3[] RetracePath(Node start, Node end, List<NodeParentChild> parentChild)
