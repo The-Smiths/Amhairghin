@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PathfindingAgent : MonoBehaviour
@@ -44,13 +43,13 @@ public class PathfindingAgent : MonoBehaviour
         if (awaitingPath)
             return;
 
+        awaitingPath = true;
+
         if (CanReuseLastPath(start, end))
         {
             StartCoroutine(ReuseLastPath());
             return;
         }
-
-        awaitingPath = true;
 
         pathfinder.RequestPath(start, end, pathfindingSettings, RecievePath);
     }
@@ -73,8 +72,8 @@ public class PathfindingAgent : MonoBehaviour
 
     protected IEnumerator ReuseLastPath()
     {
-        yield return null; // prevents a stack overflow exception
-        OnPathRecieved(true);
+        yield return null;
+        RecievePath(lastPath);
     }
 
     protected virtual void OnPathRecieved(bool success) {}

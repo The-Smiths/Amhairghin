@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Node : IGenericHeapItem<Node>
 {
@@ -14,7 +12,7 @@ public class Node : IGenericHeapItem<Node>
     public int hCost; // distance from end node
     public int fCost { get { return gCost + hCost; } }
 
-    public Node Parent;
+    //public Node Parent;
 
     public Node(bool _obstruction, Vector3 _position, int _x, int _y)
     {

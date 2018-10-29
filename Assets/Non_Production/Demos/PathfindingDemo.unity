@@ -393,6 +393,7 @@ MonoBehaviour:
     MaxReuseEndDist: 1
     Intelligent: 0
   _speed: 3
+  _reachDistance: 0
 --- !u!1 &790207917
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,6 +606,7 @@ MonoBehaviour:
       m_Bits: 256
     _nodesPerUnit: 2
     _gridSize: {x: 25, y: 25}
+  maxJobs: 1
 --- !u!4 &928853089
 Transform:
   m_ObjectHideFlags: 0
@@ -826,8 +828,9 @@ MonoBehaviour:
     _nonObstaclesTraversable: 1
     MaxReuseStartDist: 1
     MaxReuseEndDist: 1
-    Intelligent: 0
+    Intelligent: 1
   _speed: 3
+  _reachDistance: 0
 --- !u!4 &1772495374
 Transform:
   m_ObjectHideFlags: 0

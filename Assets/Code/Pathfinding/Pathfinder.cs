@@ -7,9 +7,12 @@ public class Pathfinder : MonoBehaviour
 {
     [SerializeField] private GridMap _grid;
 
+    [Space]
+
+    [SerializeField] private int maxJobs;
+
     private Queue<PathRequest> _requestQueue = new Queue<PathRequest>();
-    private PathRequest _currentRequest;
-    private bool _processingPath = false;
+    private int _currentJobs = 0;
 
     private void Awake()
     {
@@ -22,27 +25,25 @@ public class Pathfinder : MonoBehaviour
     {
         PathRequest request = new PathRequest(start, end, settings, callback);
         _requestQueue.Enqueue(request);
-
+        
         ProcessNextRequest();
     }
 
     private void ProcessNextRequest()
     {
-        if (_processingPath || _requestQueue.Count == 0)
+        if (_currentJobs >= maxJobs || _requestQueue.Count == 0)
             return;
-        
-        _currentRequest = _requestQueue.Dequeue();
-        _processingPath = true;
 
-        StartCoroutine(FindPath(_currentRequest.Start, _currentRequest.End, _currentRequest.Settings));
+        _currentJobs++;
+        StartCoroutine(FindPath(_requestQueue.Dequeue()));
     }
 
-    private void OnPathFound(bool successful, Vector3[] points)
+    private void OnPathFound(PathRequest request, bool successful, Vector3[] points)
     {
-        PathResponse response = new PathResponse(_currentRequest.Start, _currentRequest.End, successful, points);
-        _currentRequest.Callback(response);
+        PathResponse response = new PathResponse(request.Start, request.End, successful, points);
+        request.Callback(response);
 
-        _processingPath = false;
+        _currentJobs--;
         ProcessNextRequest();
     }
 
@@ -50,13 +51,15 @@ public class Pathfinder : MonoBehaviour
 
     #region Pathfinding
 
-    private IEnumerator FindPath(Vector3 startPosition, Vector3 endPosition, PathfindingAgentSettings settings)
+    private IEnumerator FindPath(PathRequest request)
     {
+        PathfindingAgentSettings settings = request.Settings;
+
         bool success = true;
         Vector3[] path = null;
 
-        Node start = _grid.WorldPositionToNode(startPosition);
-        Node end = _grid.WorldPositionToNode(endPosition);
+        Node start = _grid.WorldPositionToNode(request.Start);
+        Node end = _grid.WorldPositionToNode(request.End);
 
         if (!settings.CanTraverse(start) || !settings.CanTraverse(end))
             success = false;
@@ -64,11 +67,17 @@ public class Pathfinder : MonoBehaviour
         GenericHeap<Node> openNodes = new GenericHeap<Node>(_grid.MaxSize);
         HashSet<Node> closedNodes = new HashSet<Node>();
 
+        List<NodeParentChild> parentChild = new List<NodeParentChild>();
+
         openNodes.Add(start, settings.Intelligent);
         Node currentNode = null;
 
-        while (openNodes.Count > 0 && success == true)
+        int iterations = 0;
+
+        while (openNodes.Count > 0 && success == true && iterations < 1000)
         {
+            iterations++;
+
             currentNode = openNodes.RemoveFirst();
             closedNodes.Add(currentNode);
 
@@ -85,7 +94,8 @@ public class Pathfinder : MonoBehaviour
                     {
                         node.gCost = newMoveCost;
                         node.hCost = _grid.GetDistance(node, end);
-                        node.Parent = currentNode;
+
+                        parentChild.Add(new NodeParentChild(currentNode, node));
 
                         if (!openNodes.Contains(node))
                         {
@@ -100,29 +110,44 @@ public class Pathfinder : MonoBehaviour
             }
         }
 
-        yield return null;
+        yield return new WaitForEndOfFrame();
 
         if (success)
         {
-            path = RetracePath(start, currentNode);
+            path = RetracePath(start, currentNode, parentChild);
         }
 
-        OnPathFound(success, path);
+        OnPathFound(request, success, path);
     }
 
-    private Vector3[] RetracePath(Node start, Node end)
+    private Vector3[] RetracePath(Node start, Node end, List<NodeParentChild> parentChild)
     {
         List<Vector3> points = new List<Vector3>();
-        Node currentNode = end;
 
-        while (currentNode.Parent != null)
+        Node currentNode = end;
+        Node currentParent = GetParent(currentNode, parentChild);
+
+        while (currentParent != null)
         {
             points.Add(currentNode.Position);
-            currentNode = currentNode.Parent;
+
+            currentNode = currentParent;
+            currentParent = GetParent(currentNode, parentChild);
         }
 
         points.Reverse();
         return points.ToArray();
+    }
+
+    private Node GetParent(Node node, List<NodeParentChild> parentChild)
+    {
+        foreach (NodeParentChild pc in parentChild)
+        {
+            if (pc.Child == node)
+                return pc.Parent;
+        }
+
+        return null;
     }
     
     #endregion
@@ -157,5 +182,17 @@ public struct PathResponse
         End = _end;
         Successful = _successful;
         Points = _points;
+    }
+}
+
+public struct NodeParentChild
+{
+    public Node Parent;
+    public Node Child;
+
+    public NodeParentChild(Node _parent, Node _child)
+    {
+        Parent = _parent;
+        Child = _child;
     }
 }
