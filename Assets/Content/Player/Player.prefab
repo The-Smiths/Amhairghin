@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 212190251132771256}
   - component: {fileID: 50539679443699302}
   - component: {fileID: 61610855505023522}
+  - component: {fileID: 58385415983662046}
   - component: {fileID: 114176276220012436}
   - component: {fileID: 114271834399245676}
   - component: {fileID: 114611431703904874}
@@ -70,7 +71,7 @@ Transform:
   m_GameObject: {fileID: 1445932453760786}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -8.51, y: 0.5, z: 0}
-  m_LocalScale: {x: 0.27105165, y: 0.4489293, z: 0.6776291}
+  m_LocalScale: {x: 0.5, y: 0.9, z: 0.6776291}
   m_Children:
   - {fileID: 4537478435924642}
   - {fileID: 4406702074078790}
@@ -123,6 +124,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!58 &58385415983662046
+CircleCollider2D:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1445932453760786}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 50d7ec17a8eada54886d5bccb3c1d5bb, type: 2}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.66370517}
+  serializedVersion: 2
+  m_Radius: 0.8362948
 --- !u!61 &61610855505023522
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -135,7 +151,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.41918206}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -146,7 +162,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 3, y: 3}
+  m_Size: {x: 2.920226, y: 2.1616359}
   m_EdgeRadius: 0
 --- !u!114 &114176276220012436
 MonoBehaviour:
@@ -181,7 +197,7 @@ MonoBehaviour:
     m_Bits: 55
   m_GroundCheck: {fileID: 4406702074078790}
   m_CeilingCheck: {fileID: 4537478435924642}
-  m_CrouchDisableCollider: {fileID: 0}
+  m_CrouchDisableCollider: {fileID: 61610855505023522}
   OnLandEvent:
     m_PersistentCalls:
       m_Calls: []
