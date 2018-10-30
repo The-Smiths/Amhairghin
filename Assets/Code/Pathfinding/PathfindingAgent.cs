@@ -13,7 +13,12 @@ public class PathfindingAgent : MonoBehaviour
         InitializePathfindingAgent();
     }
 
-    // draw the path
+    protected void InitializePathfindingAgent()
+    {
+        pathfinder = FindObjectOfType<Pathfinder>();
+    }
+
+    // draws the calculated path
     protected void OnDrawGizmos()
     {
         if (!lastPath.Successful)
@@ -32,16 +37,17 @@ public class PathfindingAgent : MonoBehaviour
             }
         }
     }
-
-    protected void InitializePathfindingAgent()
-    {
-        pathfinder = FindObjectOfType<Pathfinder>();
-    }
-
+    
     protected void RequestPath(Vector3 start, Vector3 end)
     {
         if (awaitingPath)
             return;
+
+        if (lastPath.End == end)
+        {
+            OnPathReused();
+            return;
+        }
 
         awaitingPath = true;
         pathfinder.RequestPath(start, end, pathfindingSettings, RecievePath);
@@ -56,6 +62,8 @@ public class PathfindingAgent : MonoBehaviour
     }
 
     protected virtual void OnPathRecieved(bool success) { }
+
+    protected virtual void OnPathReused() { }
 }
 
 [System.Serializable]
@@ -63,16 +71,13 @@ public struct PathfindingAgentSettings
 {
     [SerializeField] private bool _obstaclesTraversable;
     [SerializeField] private bool _nonObstaclesTraversable;
-
-    [Space]
-
-    public bool Intelligent;
+    [SerializeField] private float _size;
 
     public bool CanTraverse(Node node)
     {
-        if (node.Obstruction && _obstaclesTraversable)
+        if (node.IsObstruction(_size) && _obstaclesTraversable)
             return true;
-        if (!node.Obstruction && _nonObstaclesTraversable)
+        if (!node.IsObstruction(_size) && _nonObstaclesTraversable)
             return true;
 
         return false;

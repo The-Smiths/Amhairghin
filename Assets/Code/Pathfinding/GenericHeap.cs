@@ -12,12 +12,12 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
         _items = new T[maxSize];
     }
 
-    public void Add(T item, bool intelligent)
+    public void Add(T item)
     {
         item.Index = _itemCount;
         _items[_itemCount] = item;
 
-        SortUp(item, intelligent);
+        SortUp(item);
         _itemCount++;
     }
 
@@ -33,9 +33,9 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
         return item;
     }
 
-    public void UpdateItem(T item, bool intelligent)
+    public void UpdateItem(T item)
     {
-        SortUp(item, intelligent);
+        SortUp(item);
     }
 
     public bool Contains(T item)
@@ -43,7 +43,7 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
         return Equals(_items[item.Index], item);
     }
 
-    private void SortUp(T item, bool intelligent)
+    private void SortUp(T item)
     {
         int parentIndex = (item.Index - 1) / 2;
 
@@ -60,10 +60,7 @@ public class GenericHeap<T> where T : IGenericHeapItem<T>
                 break;
             }
 
-            if (intelligent)
-            {
-                parentIndex = (item.Index - 1) / 2;
-            }
+            parentIndex = (item.Index - 1) / 2;
         }
     }
 

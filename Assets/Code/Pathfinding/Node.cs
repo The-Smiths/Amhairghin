@@ -2,22 +2,27 @@
 
 public class Node : IGenericHeapItem<Node>
 {
-    public bool Obstruction;
+    public float DistanceFromObstruction;
     public Vector3 Position;
 
-    public int X;
-    public int Y;
+    public readonly int X;
+    public readonly int Y;
 
     public int gCost; // distance from start node
     public int hCost; // distance from end node
     public int fCost { get { return gCost + hCost; } }
 
-    public Node(bool _obstruction, Vector3 _position, int _x, int _y)
+    public Node(float _distanceFromObstruction, Vector3 _position, int _x, int _y)
     {
-        Obstruction = _obstruction;
+        DistanceFromObstruction = _distanceFromObstruction;
         Position = _position;
         X = _x;
         Y = _y;
+    }
+
+    public bool IsObstruction(float distance)
+    {
+        return DistanceFromObstruction <= distance;
     }
 
     #region IGenericHeapItem

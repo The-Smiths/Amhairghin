@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
 public class Pathfinder : MonoBehaviour
 {
-    [SerializeField] private GridMap _grid;
+    public GridMap Grid;
 
     [Header("Pathfinding")]
     [SerializeField] private int maxIterations;
@@ -18,7 +19,7 @@ public class Pathfinder : MonoBehaviour
 
     private void Awake()
     {
-        _grid.CreateGrid();
+        Grid.LoadGrid();
     }
 
     #region Gizmos
@@ -26,13 +27,13 @@ public class Pathfinder : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.white;
-        Gizmos.DrawWireCube(_grid.GridCenter, _grid.GridSize);
+        Gizmos.DrawWireCube(Grid.GridCenter, Grid.GridSize);
     }
 
     #endregion
 
     #region Requesting Paths
-
+    
     public void RequestPath(Vector3 start, Vector3 end, PathfindingAgentSettings settings, Action<PathResponse> callback)
     {
         PathRequest request = new PathRequest(start, end, settings, callback);
@@ -48,13 +49,14 @@ public class Pathfinder : MonoBehaviour
 
         _currentJobs++;
 
+        //StartCoroutine(FindPath(_requestQueue.Dequeue()));
+
         Thread thread = new Thread(() => FindPath(_requestQueue.Dequeue()));
         thread.Start();
     }
 
-    private void OnPathFound(PathRequest request, bool successful, Vector3[] points)
+    private void OnPathFound(PathRequest request, PathResponse response)
     {
-        PathResponse response = new PathResponse(request.Start, request.End, successful, points);
         request.Callback(response);
 
         _currentJobs--;
@@ -68,27 +70,52 @@ public class Pathfinder : MonoBehaviour
     private void FindPath(PathRequest request)
     {
         PathfindingAgentSettings settings = request.Settings;
-        
-        bool success = true;
+
+        bool finished = false;
         Vector3[] path = null;
 
-        Node start = _grid.WorldPositionToNode(request.Start);
-        Node end = _grid.WorldPositionToNode(request.End);
+        Node start = Grid.WorldPositionToNode(request.Start);
+        Node end = Grid.WorldPositionToNode(request.End);
 
         if (!settings.CanTraverse(end))
-            success = false;
-            
-        GenericHeap<Node> openNodes = new GenericHeap<Node>(_grid.MaxSize);
+        {
+            finished = true;
+            foreach (Node node in Grid.GetNeighboringNodes(end))
+            {
+                if (settings.CanTraverse(node))
+                {
+                    end = node;
+                    finished = false;
+                    break;
+                }
+            }
+        }
+
+        if (!settings.CanTraverse(end))
+        {
+            finished = true;
+            foreach (Node node in Grid.GetNeighboringNodes(start))
+            {
+                if (settings.CanTraverse(node))
+                {
+                    start = node;
+                    finished = false;
+                    break;
+                }
+            }
+        }
+
+        GenericHeap<Node> openNodes = new GenericHeap<Node>(Grid.MaxSize);
         HashSet<Node> closedNodes = new HashSet<Node>();
 
         List<NodeParentChild> parentChild = new List<NodeParentChild>();
 
-        openNodes.Add(start, settings.Intelligent);
+        openNodes.Add(start);
         Node currentNode = null;
 
         int iterations = 0;
 
-        while (openNodes.Count > 0 && success == true && iterations < maxIterations)
+        while (openNodes.Count > 0 && !finished && iterations < maxIterations)
         {
             iterations++;
 
@@ -98,36 +125,41 @@ public class Pathfinder : MonoBehaviour
             if (currentNode == end)
                 break;
             
-            foreach (Node node in _grid.GetNeighboringNodes(currentNode))
+            foreach (Node node in Grid.GetNeighboringNodes(currentNode))
             {
                 if (settings.CanTraverse(node) && !closedNodes.Contains(node))
                 {
-                    int newMoveCost = currentNode.gCost + _grid.GetDistance(currentNode, node);
+                    int newMoveCost = currentNode.gCost + Grid.GetDistance(currentNode, node);
 
                     if (newMoveCost < node.gCost || !openNodes.Contains(node))
                     {
                         node.gCost = newMoveCost;
-                        node.hCost = _grid.GetDistance(node, end);
+                        node.hCost = Grid.GetDistance(node, end);
 
                         parentChild.Add(new NodeParentChild(currentNode, node));
 
                         if (!openNodes.Contains(node))
                         {
-                            openNodes.Add(node, settings.Intelligent);
+                            openNodes.Add(node);
                         }
                         else
                         {
-                            openNodes.UpdateItem(node, settings.Intelligent);
+                            openNodes.UpdateItem(node);
                         }
                     }
                 }
             }
         }
 
+        //yield return new WaitForEndOfFrame();
+        
+        bool success = currentNode == end;
+
         if (success)
             path = RetracePath(start, currentNode, parentChild);
 
-        MainThreadDispatcher.Add(() => OnPathFound(request, success, path)); // execute on the main thread
+        //OnPathFound(request, new PathResponse(request.Start, request.End, success, path));
+        MainThreadDispatcher.Add(() => OnPathFound(request, new PathResponse(request.Start, request.End, success, path))); // execute on the main thread
     }
 
     private Vector3[] RetracePath(Node start, Node end, List<NodeParentChild> parentChild)
