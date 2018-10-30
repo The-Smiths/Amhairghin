@@ -14,14 +14,20 @@ public class PlayerMovementController : MonoBehaviour
     private void Update()
     {
         m_hInput = Input.GetAxisRaw("Horizontal");
-        m_isJumping = Input.GetButtonDown("Jump");
-        m_isCrouching = Input.GetButton("Crouch");
+
+        if (Input.GetButtonDown("Jump"))
+            m_isJumping = true;
+        if (Input.GetButton("Crouch"))
+            m_isCrouching = true;
     }
 
     private void FixedUpdate()
     {
         controller.Move(m_hInput * Speed * Time.fixedDeltaTime, m_isCrouching, m_isJumping);
+
         if (m_isJumping)
-            Debug.Log("SPACE PRESSED");
+            m_isJumping = false;
+        if (m_isCrouching)
+            m_isCrouching = false;
     }
 }
