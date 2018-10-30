@@ -49,10 +49,7 @@ public class Pathfinder : MonoBehaviour
 
         _currentJobs++;
 
-        //StartCoroutine(FindPath(_requestQueue.Dequeue()));
-
-        Thread thread = new Thread(() => FindPath(_requestQueue.Dequeue()));
-        thread.Start();
+        StartCoroutine(FindPath(_requestQueue.Dequeue()));
     }
 
     private void OnPathFound(PathRequest request, PathResponse response)
@@ -66,8 +63,8 @@ public class Pathfinder : MonoBehaviour
     #endregion
 
     #region Pathfinding
-
-    private void FindPath(PathRequest request)
+    
+    private IEnumerator FindPath(PathRequest request)
     {
         PathfindingAgentSettings settings = request.Settings;
 
@@ -151,15 +148,14 @@ public class Pathfinder : MonoBehaviour
             }
         }
 
-        //yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
         
         bool success = currentNode == end;
 
         if (success)
             path = RetracePath(start, currentNode, parentChild);
 
-        //OnPathFound(request, new PathResponse(request.Start, request.End, success, path));
-        MainThreadDispatcher.Add(() => OnPathFound(request, new PathResponse(request.Start, request.End, success, path))); // execute on the main thread
+        OnPathFound(request, new PathResponse(request.Start, request.End, success, path));
     }
 
     private Vector3[] RetracePath(Node start, Node end, List<NodeParentChild> parentChild)
