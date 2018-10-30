@@ -113,11 +113,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!61 &440583003 stripped
-BoxCollider2D:
-  m_CorrespondingSourceObject: {fileID: 61610855505023522, guid: 85bea16be4f5d3b428590e8160577341,
-    type: 2}
-  m_PrefabInternal: {fileID: 920948334}
 --- !u!1001 &601339379
 Prefab:
   m_ObjectHideFlags: 0
@@ -292,18 +287,13 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f6e6b6295bafc6d4ca082ecf88b2cca7, type: 2}
   m_IsPrefabAsset: 0
---- !u!1001 &920948334
+--- !u!1001 &919801407
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 114271834399245676, guid: 85bea16be4f5d3b428590e8160577341,
-        type: 2}
-      propertyPath: OnLandEvent.m_PersistentCalls.m_Calls.Array.size
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4326569495751240, guid: 85bea16be4f5d3b428590e8160577341, type: 2}
       propertyPath: m_LocalPosition.x
       value: -8.51
@@ -336,34 +326,14 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 114271834399245676, guid: 85bea16be4f5d3b428590e8160577341,
-        type: 2}
-      propertyPath: OnLandEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 440583003}
-    - target: {fileID: 114271834399245676, guid: 85bea16be4f5d3b428590e8160577341,
-        type: 2}
-      propertyPath: OnLandEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: BroadcastMessage
-      objectReference: {fileID: 0}
-    - target: {fileID: 114271834399245676, guid: 85bea16be4f5d3b428590e8160577341,
-        type: 2}
-      propertyPath: OnLandEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 114271834399245676, guid: 85bea16be4f5d3b428590e8160577341,
-        type: 2}
-      propertyPath: OnLandEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 114271834399245676, guid: 85bea16be4f5d3b428590e8160577341,
-        type: 2}
-      propertyPath: OnLandEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 85bea16be4f5d3b428590e8160577341, type: 2}
   m_IsPrefabAsset: 0
+--- !u!4 &1342540433 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4326569495751240, guid: 85bea16be4f5d3b428590e8160577341,
+    type: 2}
+  m_PrefabInternal: {fileID: 919801407}
 --- !u!1 &1372892098
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,6 +344,7 @@ GameObject:
   - component: {fileID: 1372892101}
   - component: {fileID: 1372892100}
   - component: {fileID: 1372892099}
+  - component: {fileID: 1372892102}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -441,6 +412,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1372892102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1372892098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b864e0ebc09326459d6c271fb4b3025, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 1342540433}
+  SmoothSpeed: 6.25
+  Offset: {x: 0, y: 0, z: -10}
 --- !u!1001 &1552740949
 Prefab:
   m_ObjectHideFlags: 0
