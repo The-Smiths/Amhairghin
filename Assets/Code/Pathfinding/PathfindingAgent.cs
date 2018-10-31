@@ -21,7 +21,7 @@ public class PathfindingAgent : MonoBehaviour
     // draws the calculated path
     protected void OnDrawGizmos()
     {
-        if (!lastPath.Successful)
+        if (lastPath.Points == null || !lastPath.Successful)
             return;
         
         Gizmos.color = Color.white;
