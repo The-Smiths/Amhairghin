@@ -48,13 +48,12 @@ public class Pathfinder : MonoBehaviour
             return;
 
         _currentJobs++;
-
         StartCoroutine(FindPath(_requestQueue.Dequeue()));
     }
 
-    private void OnPathFound(PathRequest request, PathResponse response)
+    private void OnPathFound(PathResponse response)
     {
-        request.Callback(response);
+        response.DoCallback();
 
         _currentJobs--;
         ProcessNextRequest();
@@ -69,45 +68,30 @@ public class Pathfinder : MonoBehaviour
         PathfindingAgentSettings settings = request.Settings;
 
         bool finished = false;
-        Vector3[] path = null;
 
         Node start = Grid.WorldPositionToNode(request.Start);
         Node end = Grid.WorldPositionToNode(request.End);
-
-        if (!settings.CanTraverse(end))
-        {
-            finished = true;
-            foreach (Node node in Grid.GetNeighboringNodes(end))
-            {
-                if (settings.CanTraverse(node))
-                {
-                    end = node;
-                    finished = false;
-                    break;
-                }
-            }
-        }
-
-        if (!settings.CanTraverse(end))
-        {
-            finished = true;
-            foreach (Node node in Grid.GetNeighboringNodes(start))
-            {
-                if (settings.CanTraverse(node))
-                {
-                    start = node;
-                    finished = false;
-                    break;
-                }
-            }
-        }
 
         GenericHeap<Node> openNodes = new GenericHeap<Node>(Grid.MaxSize);
         HashSet<Node> closedNodes = new HashSet<Node>();
 
         List<NodeParentChild> parentChild = new List<NodeParentChild>();
+        
+        if (!settings.CanTraverse(start))
+        {
+            start = FindFirstNeighboringValid(start, start, settings);
+        }
 
-        openNodes.Add(start);
+        if (!settings.CanTraverse(end))
+        {
+            end = FindFirstNeighboringValid(end, end, settings);
+        }
+
+        finished = (start == null) || (end == null);
+
+        if (start != null)
+            openNodes.Add(start);
+        
         Node currentNode = null;
 
         int iterations = 0;
@@ -132,7 +116,7 @@ public class Pathfinder : MonoBehaviour
                     {
                         node.gCost = newMoveCost;
                         node.hCost = Grid.GetDistance(node, end);
-
+                        
                         parentChild.Add(new NodeParentChild(currentNode, node));
 
                         if (!openNodes.Contains(node))
@@ -152,10 +136,30 @@ public class Pathfinder : MonoBehaviour
         
         bool success = currentNode == end;
 
-        if (success)
-            path = RetracePath(start, currentNode, parentChild);
+        OnPathFound(new PathResponse(request.Start, request.End, success, RetracePath(start, currentNode, parentChild), request.Callback));
+    }
 
-        OnPathFound(request, new PathResponse(request.Start, request.End, success, path));
+    private Node FindFirstNeighboringValid(Node original, Node node, PathfindingAgentSettings settings, int iterations = 0)
+    {
+        if (iterations < Grid.NodesPerUnit)
+        {
+            foreach (Node n in Grid.GetNeighboringNodes(node))
+            {
+                if (!settings.CanTraverse(n))
+                {
+                    Node nn = FindFirstNeighboringValid(original, n, settings, iterations + 1);
+
+                    if (nn != null)
+                        return nn;
+                }
+                else
+                {
+                    return n;
+                }
+            }
+        }
+
+        return null;
     }
 
     private Vector3[] RetracePath(Node start, Node end, List<NodeParentChild> parentChild)
@@ -214,12 +218,20 @@ public struct PathResponse
     public bool Successful;
     public Vector3[] Points;
 
-    public PathResponse(Vector3 _start, Vector3 _end, bool _successful, Vector3[] _points)
+    private Action<PathResponse> _callback;
+
+    public PathResponse(Vector3 _start, Vector3 _end, bool _successful, Vector3[] _points, Action<PathResponse> callback_)
     {
         Start = _start;
         End = _end;
         Successful = _successful;
         Points = _points;
+        _callback = callback_;
+    }
+
+    public void DoCallback()
+    {
+        _callback(this);
     }
 }
 

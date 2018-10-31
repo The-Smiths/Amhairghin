@@ -16,7 +16,7 @@ public class GotoMouse : PathfindingAgent
     {
         RecalculatePath();
 
-        if (!lastPath.Successful || lastPath.Points == null || _currentPoint >= lastPath.Points.Length)
+        if (lastPath.Points == null || _currentPoint >= lastPath.Points.Length || !lastPath.Successful)
             return;
 
         transform.position = Vector2.MoveTowards(transform.position, lastPath.Points[_currentPoint], _speed * Time.deltaTime);

@@ -6,7 +6,7 @@ using UnityEngine;
 public class GridMap
 {
     [HideInInspector] public Node[,] Grid; // [HideInInspector] atrribute is unnecessary on these, but I'll add it anyway
-    [HideInInspector] public float NodeRadius { get { return 0.5f / _nodesPerUnit; } } 
+    [HideInInspector] public float NodeRadius { get { return 0.5f / NodesPerUnit; } } 
     [HideInInspector] public int MaxSize { get { return (int) (GridSize.x * GridSize.y); } }
 
     public Vector3 GridCenter;
@@ -14,7 +14,7 @@ public class GridMap
 
     [SerializeField] private string _gridCode;
     [SerializeField] private LayerMask _obstructionMask;
-    [SerializeField] private int _nodesPerUnit;
+    public int NodesPerUnit;
     [SerializeField] private float[] _distancesToCheck;
 
     #region Saving And Loading Grids
@@ -26,14 +26,14 @@ public class GridMap
             File.Create(GetPath());
         }
 
-        Grid = new Node[(int)GridSize.x * _nodesPerUnit, (int)GridSize.y * _nodesPerUnit];
+        Grid = new Node[(int)GridSize.x * NodesPerUnit, (int)GridSize.y * NodesPerUnit];
         Vector3 bottomLeft = GridCenter - (Vector3.right * GridSize.x / 2) - (Vector3.up * GridSize.y / 2);
 
         for (int x = 0; x < Grid.GetLength(0); x++)
         {
             for (int y = 0; y < Grid.GetLength(1); y++)
             {
-                Vector3 position = bottomLeft + (Vector3.right * (x + NodeRadius) + Vector3.up * (y + NodeRadius)) / _nodesPerUnit;
+                Vector3 position = bottomLeft + (Vector3.right * (x + NodeRadius) + Vector3.up * (y + NodeRadius)) / NodesPerUnit;
                 float distanceFromObstruction = Mathf.Infinity;
 
                 foreach (float distance in _distancesToCheck)
@@ -82,7 +82,7 @@ public class GridMap
             contents = reader.ReadToEnd().Split('&');
         }
 
-        Grid = new Node[(int)GridSize.x * _nodesPerUnit, (int)GridSize.y * _nodesPerUnit];
+        Grid = new Node[(int)GridSize.x * NodesPerUnit, (int)GridSize.y * NodesPerUnit];
         Vector3 bottomLeft = GridCenter - (Vector3.right * GridSize.x / 2) - (Vector3.up * GridSize.y / 2);
 
         foreach (string c in contents)
@@ -111,7 +111,7 @@ public class GridMap
             float.TryParse(entries[2], out d);
         }
 
-        Vector3 position = bottomLeft + (Vector3.right * (x + NodeRadius) + Vector3.up * (y + NodeRadius)) / _nodesPerUnit;
+        Vector3 position = bottomLeft + (Vector3.right * (x + NodeRadius) + Vector3.up * (y + NodeRadius)) / NodesPerUnit;
 
         Grid[x, y] = new Node(d, position, x, y);
     }
@@ -130,8 +130,8 @@ public class GridMap
         float percentX = Mathf.Clamp01((position.x + GridSize.x / 2) / GridSize.x);
         float percentY = Mathf.Clamp01((position.y + GridSize.y / 2) / GridSize.y);
 
-        int x = (int) Mathf.Round((GridSize.x - 1) * percentX * _nodesPerUnit);
-        int y = (int) Mathf.Round((GridSize.y - 1) * percentY * _nodesPerUnit);
+        int x = (int) Mathf.Round((GridSize.x - 1) * percentX * NodesPerUnit);
+        int y = (int) Mathf.Round((GridSize.y - 1) * percentY * NodesPerUnit);
 
         return Grid[x, y];
     }
