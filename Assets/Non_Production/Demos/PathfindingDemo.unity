@@ -2732,7 +2732,7 @@ MonoBehaviour:
     - 0.7
     - 1
     - 2
-  maxIterations: 1000
+  maxIterations: 2000
   maxJobs: 4
 --- !u!4 &928853089
 Transform:
