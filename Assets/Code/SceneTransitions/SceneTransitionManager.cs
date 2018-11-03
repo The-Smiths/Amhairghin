@@ -16,9 +16,9 @@ public class SceneTransitionManager : MonoBehaviour
         if (SceneLoadInfo.comeFromAnotherScene)
         {
             GameObject.FindWithTag("Player").transform.position = (Vector2)_inMarker.position;
+            StartCoroutine(FadeIn());
         }
         SceneLoadInfo.comeFromAnotherScene = false; 
-        StartCoroutine(FadeIn());
     }
 
     private IEnumerator FadeIn()
