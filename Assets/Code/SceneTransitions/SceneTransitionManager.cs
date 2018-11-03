@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class SceneTransitionManager : MonoBehaviour
 {
+    private const float FadeTime = 2;
+
     [SerializeField] private Image _transition;
     [SerializeField] private Transform _inMarker;
 
@@ -17,21 +19,19 @@ public class SceneTransitionManager : MonoBehaviour
         {
             GameObject.FindWithTag("Player").transform.position = (Vector2)_inMarker.position;
             StartCoroutine(FadeIn());
+            SceneLoadInfo.comeFromAnotherScene = false;
         }
-        SceneLoadInfo.comeFromAnotherScene = false; 
     }
 
     private IEnumerator FadeIn()
     {
-        float startTime = 2;
-        float time = startTime;
-
+        float time = FadeTime;
         while (time > 0)
         {
             time -= Time.deltaTime;
 
             Color col = _transition.color;
-            col.a = time / startTime;
+            col.a = time / FadeTime;
             _transition.color = col;
 
             yield return null;
@@ -40,15 +40,11 @@ public class SceneTransitionManager : MonoBehaviour
 
     private IEnumerator FadeOut(string endScene)
     {
-        _transitioning = true;
-
-        float time = 2;
         float elapsed = 0;
-
-        while (elapsed < time)
+        while (elapsed < FadeTime)
         {
             Color col = _transition.color;
-            col.a = elapsed / time;
+            col.a = elapsed / FadeTime;
             _transition.color = col;
 
             elapsed += Time.deltaTime;
