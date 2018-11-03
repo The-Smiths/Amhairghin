@@ -6,14 +6,14 @@ using UnityEngine.SceneManagement;
 
 public class SceneTransitionManager : MonoBehaviour
 {
-    private const float FadeTime = 2;
+    private const float FadeTime = 0.5f;
 
     [SerializeField] private Image _transition;
     [SerializeField] private Transform _inMarker;
 
     private bool _transitioning;
 
-    private void Start()
+    private void Awake()
     {
         if (SceneLoadInfo.comeFromAnotherScene)
         {
